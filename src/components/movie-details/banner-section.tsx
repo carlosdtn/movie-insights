@@ -3,10 +3,12 @@ import {
   IconClockHour3,
   IconMessage2,
   IconStarFilled,
-  IconStar,
 } from "@tabler/icons-react";
 import Image from "next/image";
 import { Button } from "../ui/button";
+import GenreTag from "./atoms/genre-tag";
+import DialogRate from "./organisms/dialog-rate";
+import DialogComment from "./organisms/dialog-comment";
 
 interface BannerSectionProps {
   movie: Movie;
@@ -40,12 +42,7 @@ const BannerSection: React.FC<BannerSectionProps> = ({ movie, loading }) => {
             </div>
             <div className="flex flex-row gap-1">
               {movie.genre?.map((genre, i) => (
-                <span
-                  className="text-xs border border-white/20 text-stone-950 font-semibold bg-gradient-to-t from-amber-600 to-amber-500 px-2 rounded-full"
-                  key={i}
-                >
-                  {genre}
-                </span>
+                <GenreTag key={i} genre={genre} />
               ))}
             </div>
           </div>
@@ -70,24 +67,8 @@ const BannerSection: React.FC<BannerSectionProps> = ({ movie, loading }) => {
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="flex items-center gap-1 text-amber-400 hover:bg-amber-500/40 py-1 h-auto"
-                >
-                  <IconStar width="16" height="16" />
-                  <span className="font-semibold">Rate</span>
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="flex items-center gap-1 text-blue-400 hover:bg-blue-500/40 py-1 h-auto"
-                >
-                  <IconMessage2 width="16" height="16" />
-                  <span className="font-semibold">Comment</span>
-                </Button>
+                <DialogRate />
+                <DialogComment />
               </div>
             </div>
           </div>
