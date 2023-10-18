@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils";
-import "./globals.css";
+import Provider from "@/redux/provider";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import Provider from "@/redux/provider";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 

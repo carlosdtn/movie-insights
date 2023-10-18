@@ -1,14 +1,20 @@
-import MovieCard from "@/components/movies/molecules/movie-card";
-import { movies } from "@/data/movies";
+"use client";
+import withLocalStorage from "@/components/hocs/withLocalStorage";
+import GridSection from "@/components/movies/grid-section";
+import TableSection from "@/components/movies/table-section";
+import { useAppSelector } from "@/redux/hooks";
+import { loadDataFromLocalStorage } from "@/utils/helpers";
+
+// interface MoviesPageProps {
+//   loadDataFromLocalStorage: () => void;
+// }
 
 const MoviesPage = () => {
+  const isGrid = useAppSelector((state) => state.options.isGrid);
+  loadDataFromLocalStorage();
   return (
     <main className="flex justify-center w-full">
-      <section className="grid grid-cols-4 auto-rows-max w-[62rem] gap-4">
-        {movies.map((data, i) => (
-          <MovieCard key={i} data={data} />
-        ))}
-      </section>
+      {isGrid ? <GridSection /> : <TableSection />}
     </main>
   );
 };

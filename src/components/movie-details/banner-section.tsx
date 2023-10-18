@@ -1,14 +1,11 @@
+import { getAverageRating } from "@/utils/helpers";
 import { Movie } from "@/utils/types";
-import {
-  IconClockHour3,
-  IconMessage2,
-  IconStarFilled,
-} from "@tabler/icons-react";
+import { IconClockHour3, IconStarFilled } from "@tabler/icons-react";
 import Image from "next/image";
-import { Button } from "../ui/button";
 import GenreTag from "./atoms/genre-tag";
-import DialogRate from "./organisms/dialog-rate";
 import DialogComment from "./organisms/dialog-comment";
+import DialogRate from "./organisms/dialog-rate";
+import { useAppSelector } from "@/redux/hooks";
 
 interface BannerSectionProps {
   movie: Movie;
@@ -16,8 +13,10 @@ interface BannerSectionProps {
 }
 
 const BannerSection: React.FC<BannerSectionProps> = ({ movie, loading }) => {
+  const rating = useAppSelector((state) => state.ratings);
+
   return (
-    <section className="flex w-[62rem] bg-stone-700">
+    <section className="flex w-full lg:w-[62rem] bg-stone-700">
       <div className="relative w-full h-auto">
         {loading ? (
           <div className="h-[25rem] w-full bg-gradient-to-r from-stone-700 to-stone-300 animate-pulse" />
@@ -30,13 +29,13 @@ const BannerSection: React.FC<BannerSectionProps> = ({ movie, loading }) => {
             className="w-full object-cover object-top h-[25rem]"
           />
         )}
-        <div className="flex justify-end flex-col p-4 gap-4 absolute top-0 left-0 w-full backdrop-blur-md h-full bg-stone-800/70">
+        <div className="absolute top-0 left-0 flex flex-col justify-end w-full h-full gap-4 p-4 backdrop-blur-md bg-stone-800/70">
           <div className="flex flex-col gap-1">
-            <div className="flex gap-3 items-center">
-              <h1 className="text-4xl font-semibold leading-tight">
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-semibold leading-tight md:text-4xl">
                 {movie.title}
               </h1>
-              <span className="border border-white rounded-full px-2 text-sm">
+              <span className="px-2 text-sm border border-white rounded-full">
                 {movie.releaseDate}
               </span>
             </div>
@@ -48,9 +47,9 @@ const BannerSection: React.FC<BannerSectionProps> = ({ movie, loading }) => {
           </div>
           <div className="flex flex-col gap-3">
             <p className="text-sm">{movie.description}</p>
-            <div className="flex gap-4 justify-between">
+            <div className="flex justify-between gap-4">
               <div className="flex gap-4">
-                <div className="text-sm flex items-center gap-1 text-stone-300">
+                <div className="flex items-center gap-1 text-sm text-stone-300">
                   <IconClockHour3 width="16" height="16" />
                   <span>{movie.duration} min</span>
                 </div>
@@ -61,14 +60,17 @@ const BannerSection: React.FC<BannerSectionProps> = ({ movie, loading }) => {
                     height="16"
                   />
                   <p className="text-sm">
-                    {movie.rating}
-                    <span className="text-stone-400">/10</span>
+                    {!loading &&
+                      getAverageRating(movie.id, rating).roundedAverage}
+                    <span className="text-stone-400">{`/10 (${
+                      !loading && getAverageRating(movie.id, rating).totalRating
+                    })`}</span>
                   </p>
                 </div>
               </div>
               <div className="flex gap-2">
-                <DialogRate />
-                <DialogComment />
+                <DialogRate movie={movie} />
+                <DialogComment movie={movie} />
               </div>
             </div>
           </div>

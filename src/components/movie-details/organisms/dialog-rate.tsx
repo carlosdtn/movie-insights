@@ -3,10 +3,22 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { IconStar } from "@tabler/icons-react";
 import Rating from "../atoms/rating";
-import { useAppSelector } from "@/redux/hooks";
+import { useAppDispatch } from "@/redux/hooks";
+import React, { useState } from "react";
+import { setRating } from "@/redux/features/rating-slice";
+import { Movie } from "@/utils/types";
 
-const DialogRate = () => {
-  const rating = useAppSelector((state) => state.ratingReducer.value);
+const DialogRate: React.FC<{ movie: Movie }> = ({ movie }) => {
+  const [localRating, setLocalRating] = useState<number>(0);
+  const dispatch = useAppDispatch();
+
+  const handleRatingChange = (newRating: number) => {
+    setLocalRating(newRating);
+  };
+
+  const handleSaveRating = () => {
+    dispatch(setRating({ id: movie.id, value: localRating }));
+  };
 
   return (
     <Dialog>
@@ -15,36 +27,39 @@ const DialogRate = () => {
           type="button"
           variant="ghost"
           size="sm"
-          className="flex items-center gap-1 text-amber-400 hover:bg-amber-500/40 py-1 h-auto"
+          className="flex items-center h-auto gap-1 py-1 text-amber-400 hover:bg-amber-500/40 bg-amber-500/40 md:bg-transparent"
         >
           <IconStar width="16" height="16" />
-          <span className="font-semibold">Rate</span>
+          <span className="hidden font-semibold md:flex">Rate</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <div className="flex flex-col gap-2">
           <DialogTitle className="text-lg font-semibold">
-            Rate this movie
+            Rate {movie.title}
           </DialogTitle>
           <DialogDescription className="text-sm text-stone-400">
             Select your rating for this movie
           </DialogDescription>
           <div className="flex justify-center py-4">
-            <Rating />
+            <Rating value={localRating} onChange={handleRatingChange} />
           </div>
           <div className="flex items-center gap-4">
-            <p className="text-sm flex justify-center w-12">
-              {rating}
+            <p className="flex justify-center w-12 text-sm select-none">
+              {localRating}
               <span className="text-stone-400">/10</span>
             </p>
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              className="w-full"
-            >
-              Rate
-            </Button>
+            <DialogTrigger asChild>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                className="w-full"
+                onClick={handleSaveRating}
+              >
+                Rate
+              </Button>
+            </DialogTrigger>
           </div>
         </div>
       </DialogContent>

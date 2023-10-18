@@ -1,12 +1,12 @@
 import { cn } from "@/lib/utils";
-import { setRating } from "@/redux/features/rating/rating-slice";
-import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { IconStar, IconStarFilled } from "@tabler/icons-react";
 
-const Rating = () => {
-  const rating = useAppSelector((state) => state.ratingReducer.value);
-  const dispatch = useAppDispatch();
+interface RatingProps {
+  value: number;
+  onChange: (newRating: number) => void;
+}
 
+const Rating: React.FC<RatingProps> = ({ value, onChange }) => {
   const MAX_RATING = 10;
 
   const starsClassName = (filled: boolean) => {
@@ -16,19 +16,15 @@ const Rating = () => {
     };
   };
 
-  const handleRatingChange = (newRating: number) => {
-    dispatch(setRating(newRating));
-  };
-
   const renderStars = () => {
     const stars = [];
     for (let i = 1; i <= MAX_RATING; i++) {
-      const filled = i <= rating;
+      const filled = i <= value;
       stars.push(
         <span
           key={i}
           className={cn("text-3xl cursor-pointer", starsClassName(filled))}
-          onClick={() => handleRatingChange(i)}
+          onClick={() => onChange(i)}
         >
           {filled ? (
             <IconStarFilled width="24" height="24" />

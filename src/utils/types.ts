@@ -3,10 +3,13 @@ export interface Movie {
   title: string;
   description: string;
   releaseDate: number;
-  rating: number;
   genre: GenreEnum[];
   duration: number;
   image: string;
+}
+
+export interface Comment {
+  id: number;
   reviews: Review[];
 }
 
@@ -14,6 +17,17 @@ export interface Review {
   author: string;
   comment: string;
   createdAt: number;
+}
+
+export interface Rating {
+  id: number;
+  ratings: number[];
+}
+
+export interface FavoriteMovie {
+  id: number;
+  title: string;
+  image: string;
 }
 
 export enum GenreEnum {
