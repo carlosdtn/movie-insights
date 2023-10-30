@@ -17,11 +17,30 @@ import { setComment } from "@/redux/features/comment-slice";
 import { useAppDispatch } from "@/redux/hooks";
 import { Movie } from "@/utils/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconMessage2 } from "@tabler/icons-react";
+import {
+  IconMessage2,
+  IconMoodEmpty,
+  IconMoodHappy,
+  IconMoodSad,
+} from "@tabler/icons-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import Sentiment from "sentiment";
+
+const sentiment = new Sentiment();
 
 const DialogComment: React.FC<{ movie: Movie }> = ({ movie }) => {
+  const [sentimentScore, setSentimentScore] = useState<{
+    score: number;
+    comparative: number;
+  } | null>(null);
+  const [actualComment, setActualComment] = useState<string>("");
+
+  useEffect(() => {
+    setSentimentScore(sentiment.analyze(actualComment));
+  }, [actualComment]);
+
   const dispatch = useAppDispatch();
 
   const formSchema = z.object({
@@ -44,6 +63,15 @@ const DialogComment: React.FC<{ movie: Movie }> = ({ movie }) => {
       })
     );
   }
+
+  const Emoji = (score: number) => {
+    if (score > 0) {
+      return <IconMoodHappy className="w-8 h-8 text-emerald-400" />;
+    } else if (score < 0) {
+      return <IconMoodSad className="w-8 h-8 text-red-300" />;
+    }
+    return <IconMoodEmpty className="w-8 h-8 text-stone-400" />;
+  };
 
   return (
     <Dialog>
@@ -74,6 +102,7 @@ const DialogComment: React.FC<{ movie: Movie }> = ({ movie }) => {
               <FormField
                 control={form.control}
                 name="author"
+                defaultValue=""
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm text-stone-400">
@@ -93,8 +122,9 @@ const DialogComment: React.FC<{ movie: Movie }> = ({ movie }) => {
               <FormField
                 control={form.control}
                 name="comment"
+                defaultValue=""
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="relative">
                     <FormLabel className="text-sm text-stone-400">
                       Comment
                     </FormLabel>
@@ -103,9 +133,17 @@ const DialogComment: React.FC<{ movie: Movie }> = ({ movie }) => {
                         id="comment"
                         className="w-full h-32 px-2 py-1 text-sm border rounded-md bg-stone-800 border-stone-600/30 text-stone-400"
                         placeholder="Write your comment here..."
+                        onChangeCapture={(
+                          e: React.ChangeEvent<HTMLTextAreaElement>
+                        ) => {
+                          setActualComment(e.target.value);
+                        }}
                         {...field}
                       />
                     </FormControl>
+                    <div className="absolute right-2 top-8">
+                      {Emoji(sentimentScore?.score ?? 0)}
+                    </div>
                   </FormItem>
                 )}
               />

@@ -10,8 +10,13 @@ import {
 } from "@tabler/icons-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const TableRow: React.FC<{ data: Movie }> = ({ data }) => {
+  const [asyncData, setAsyncData] = useState<{
+    rating: { roundedAverage: number; totalRating: number };
+    favorite: boolean;
+  }>();
   const rating = useAppSelector((state) => state.ratings);
   const favorites = useAppSelector((state) => state.favorites);
 
@@ -24,6 +29,13 @@ const TableRow: React.FC<{ data: Movie }> = ({ data }) => {
       dispatch(setFavorite({ favorite: data }));
     }
   };
+
+  useEffect(() => {
+    setAsyncData({
+      rating: getAverageRating(data.id, rating),
+      favorite: validateFavorite(favorites, data.id),
+    });
+  }, [favorites]);
 
   return (
     <tr>
@@ -50,14 +62,12 @@ const TableRow: React.FC<{ data: Movie }> = ({ data }) => {
       <td className="px-2 py-4 text-sm text-white">
         <div className="flex items-center gap-1">
           <IconStarFilled className="text-amber-300" width="16" height="16" />
-          <span className="text-sm">
-            {getAverageRating(data.id, rating).roundedAverage}
-          </span>
+          <span className="text-sm">{asyncData?.rating?.roundedAverage}</span>
         </div>
       </td>
       <td className="px-2 py-4 text-sm text-center text-white w-[10%]">
         <Button type="button" variant="ghost" onClick={handleFavorite}>
-          {validateFavorite(favorites, data.id) ? (
+          {asyncData?.favorite ? (
             <IconHeartFilled
               className="text-red-400 hover:text-white"
               width="18"

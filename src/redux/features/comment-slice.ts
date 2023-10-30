@@ -1,6 +1,15 @@
+import { comments } from "@/data/comments";
 import { Comment } from "@/utils/types";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
+let initialState: Comment[] = comments;
+
+if (typeof window !== "undefined") {
+  const persistedFavoritesData = localStorage.getItem("commentsData");
+  if (persistedFavoritesData) {
+    initialState = JSON.parse(persistedFavoritesData) as Comment[];
+  }
+}
 interface CommentState {
   id: number;
   author: string;
@@ -10,9 +19,7 @@ interface CommentState {
 
 export const CommentSlice = createSlice({
   name: "comments",
-  initialState: localStorage.getItem("commentsData")
-    ? (JSON.parse(localStorage.getItem("commentsData") || "null") as Comment[])
-    : [],
+  initialState: initialState,
   reducers: {
     setComment: (state, action: PayloadAction<CommentState>) => {
       const { id, ...review } = action.payload;

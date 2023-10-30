@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { deleteFavorite, setFavorite } from "@/redux/features/favorites-slice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { getAverageRating, validateFavorite } from "@/utils/helpers";
-import { Movie } from "@/utils/types";
+import { FavoriteMovie, Movie } from "@/utils/types";
 import {
   IconHeart,
   IconHeartFilled,
@@ -10,8 +10,13 @@ import {
 } from "@tabler/icons-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const MovieCard: React.FC<{ data: Movie }> = ({ data }) => {
+  const [asyncData, setAsyncData] = useState<{
+    rating: { roundedAverage: number; totalRating: number };
+    favorite: boolean;
+  }>();
   const rating = useAppSelector((state) => state.ratings);
   const dispatch = useAppDispatch();
   const favorites = useAppSelector((state) => state.favorites);
@@ -24,6 +29,13 @@ const MovieCard: React.FC<{ data: Movie }> = ({ data }) => {
     }
   };
 
+  useEffect(() => {
+    setAsyncData({
+      rating: getAverageRating(data.id, rating),
+      favorite: validateFavorite(favorites, data.id),
+    });
+  }, [favorites]);
+
   return (
     <div className="w-auto h-auto shadow bg-stone-800 shadow-stone-900">
       <div className="relative border-b border-stone-500/50">
@@ -33,7 +45,7 @@ const MovieCard: React.FC<{ data: Movie }> = ({ data }) => {
           size="icon"
           onClick={handleFavorite}
         >
-          {validateFavorite(favorites, data.id) ? (
+          {asyncData?.favorite ? (
             <IconHeartFilled
               className="text-red-400 hover:text-white"
               width="18"
@@ -58,9 +70,7 @@ const MovieCard: React.FC<{ data: Movie }> = ({ data }) => {
       <div className="flex flex-col gap-2 px-2 py-3">
         <div className="flex items-center gap-1">
           <IconStarFilled className="text-amber-300" width="16" height="16" />
-          <span className="text-sm">
-            {getAverageRating(data.id, rating).roundedAverage}
-          </span>
+          <span className="text-sm">{asyncData?.rating?.roundedAverage}</span>
         </div>
         <div>
           <h3 className="text-lg font-semibold cursor-pointer line-clamp-1 hover:underline">

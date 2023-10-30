@@ -1,11 +1,20 @@
 import { Toggle } from "@/components/ui/toggle";
-import { useAppSelector } from "@/redux/hooks";
+import {
+  setCommentFilter,
+  addYear,
+  deleteYear,
+} from "@/redux/features/filter-slice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { IconMoodEmpty, IconMoodHappy, IconMoodSad } from "@tabler/icons-react";
 import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const FilterCard = () => {
+  const [uniqueYears, setUniqueYears] = useState<number[]>([]);
   const comments = useAppSelector((state) => state.comments);
+  const filter = useAppSelector((state) => state.filter);
   const id = parseInt(useParams().id as string);
+  const dispatch = useAppDispatch();
 
   const getUniqueYears = (id: number) => {
     const filteredComments = comments.filter((comment) => comment.id === id);
@@ -15,27 +24,37 @@ const FilterCard = () => {
     return [...new Set(years)].sort((a, b) => b - a);
   };
 
-  // const getCommentsByYear = (year: number[]) => {
-  //   const filteredComments = comments.filter((comment) => comment.id === id);
-  //   const commentsByYear = filteredComments[0].reviews.filter((review) => {
-  //     return year.includes(new Date(review.createdAt).getFullYear());
-  //   });
-  //   return commentsByYear;
-  // };
+  useEffect(() => {
+    setUniqueYears(getUniqueYears(id));
+  }, [comments]);
 
-  // function onClick() {
-  //   console.log(getUniqueYears(id));
-  //   console.log(getCommentsByYear([2023, 1970]));
-  // }
+  const handleToggleView = (isChecked: boolean, year: number) => {
+    const index = filter.findIndex((f) => f.postID === id);
+    if (isChecked) {
+      if (index === -1) {
+        dispatch(setCommentFilter({ postID: id, year: [year] }));
+      } else {
+        dispatch(addYear({ postID: id, newYear: year }));
+      }
+    } else {
+      if (index !== -1) {
+        dispatch(deleteYear({ postID: id, year: year }));
+      }
+    }
+  };
 
   return (
     <aside className="sticky flex-col hidden gap-4 px-2 py-3 border rounded-md lg:flex top-[4.5rem] border-stone-600/30 h-min">
       <div className="flex flex-col gap-2">
         <h1 className="font-bold text-stone-400">Filter by Year</h1>
         <ul className="flex flex-col gap-1">
-          {getUniqueYears(id).map((year, i) => (
+          {uniqueYears.map((year, i) => (
             <li key={i}>
-              <Toggle variant="outline" className="w-full">
+              <Toggle
+                variant="outline"
+                className="w-full"
+                onPressedChange={(e) => handleToggleView(e, year)}
+              >
                 {year}
               </Toggle>
             </li>

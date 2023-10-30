@@ -2,6 +2,16 @@ import { Rating } from "@/utils/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { rating } from "@/data/rating";
 
+let initialState: Rating[] = [];
+
+if (typeof window !== "undefined") {
+  const persistedFavoritesData = localStorage.getItem("ratingsData");
+  if (persistedFavoritesData) {
+    initialState = JSON.parse(persistedFavoritesData) as Rating[];
+  } else {
+    initialState = rating;
+  }
+}
 interface RatingState {
   id: number;
   value: number;
@@ -9,9 +19,7 @@ interface RatingState {
 
 export const RatingSlice = createSlice({
   name: "ratings",
-  initialState: localStorage.getItem("ratingsData")
-    ? (JSON.parse(localStorage.getItem("ratingsData") || "null") as Rating[])
-    : rating,
+  initialState: initialState,
   reducers: {
     setRating: (state, action: PayloadAction<RatingState>) => {
       const { id, value } = action.payload;

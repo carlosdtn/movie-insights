@@ -1,13 +1,18 @@
 import { FavoriteMovie } from "@/utils/types";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
+let initialState: FavoriteMovie[] = [];
+
+if (typeof window !== "undefined") {
+  const persistedFavoritesData = localStorage.getItem("favoritesData");
+  if (persistedFavoritesData) {
+    initialState = JSON.parse(persistedFavoritesData) as FavoriteMovie[];
+  }
+}
+
 export const FavoritesSlice = createSlice({
   name: "favorites",
-  initialState: localStorage.getItem("favoritesData")
-    ? (JSON.parse(
-        localStorage.getItem("favoritesData") || "null"
-      ) as FavoriteMovie[])
-    : [],
+  initialState: initialState,
   reducers: {
     setFavorite: (
       state,

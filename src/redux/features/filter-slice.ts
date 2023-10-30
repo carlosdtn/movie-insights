@@ -1,22 +1,40 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 interface Filter {
-  id: number;
-  value: string;
+  postID: number;
+  year: number[];
 }
 
 export const FilterSlice = createSlice({
   name: "filters",
   initialState: [] as Filter[],
   reducers: {
-    setFilter: (state, action: PayloadAction<Filter>) => {
-      const { id, value } = action.payload;
-      const index = state.findIndex((filter) => filter.id === id);
-      state[index].value = value;
-      localStorage.setItem("filtersData", JSON.stringify(state));
+    setCommentFilter: (state, action: PayloadAction<Filter>) => {
+      const { postID, year } = action.payload;
+      state.push({ postID, year });
+    },
+    addYear: (
+      state,
+      action: PayloadAction<{
+        postID: number;
+        newYear: number;
+      }>
+    ) => {
+      const { postID, newYear } = action.payload;
+      const index = state.findIndex((filter) => filter.postID === postID);
+      state[index].year.push(newYear);
+    },
+    deleteYear: (
+      state,
+      action: PayloadAction<{ postID: number; year: number }>
+    ) => {
+      const { postID, year } = action.payload;
+      const index = state.findIndex((filter) => filter.postID === postID);
+      const yearIndex = state[index].year.findIndex((y) => y === year);
+      state[index].year.splice(yearIndex, 1);
     },
   },
 });
 
-export const { setFilter } = FilterSlice.actions;
+export const { setCommentFilter, addYear, deleteYear } = FilterSlice.actions;
 export default FilterSlice.reducer;
